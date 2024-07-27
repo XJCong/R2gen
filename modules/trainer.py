@@ -1,6 +1,7 @@
 import os
 from abc import abstractmethod
 
+import json
 import time
 import torch
 import pandas as pd
@@ -233,7 +234,7 @@ class Trainer(BaseTrainer):
             os.system(f'/root/anaconda3/envs/chexbert/bin/python {current_dir}/../../../CheXbert/src/label.py -d={current_dir}/val_gts.csv -o={current_dir} -c={current_dir}/../../../CheXbert/chexbert.pth')
             os.system(f'mv {current_dir}/labeled_reports.csv {current_dir}/val_gts_labeled.csv')
 
-            os.system(f'python {current_dir}/../../../compute_ce.py --res_path={current_dir}/val_res_labeled.csv --gts_path={current_dir}/val_gts_labeled.csv > {current_dir}/AURROC.json')
+            os.system(f'python {current_dir}/../../../compute_ce.py --res_path={current_dir}/val_res_labeled.csv --gts_path={current_dir}/val_gts_labeled.csv')
                 
         # self.model.eval()
         # with torch.no_grad():
@@ -252,5 +253,11 @@ class Trainer(BaseTrainer):
             log.update(**{'test_' + k: v for k, v in test_met.items()})
 
         self.lr_scheduler.step()
-
+        # print("HERE is log", log)
+        score_1 = (log['test_BLEU_1'] * log['test_BLEU_2'] * log['test_BLEU_3'] * log['test_BLEU_4'] * log['test_METEOR'] * log['test_ROUGE_L']) ** (1/6)
+        metric = json.load(open(f'{current_dir}/AURROC.json'))
+        score_2 = (metric['F1_MICRO'] + metric['PRECISION_MICRO'] + metric['RECALL_MICRO']) / 3
+        print("Language score: ", score_1)
+        print("Medical score: ", score_2)
+        print("Final score: ", (score_1 + score_2) * 0.5)
         return log

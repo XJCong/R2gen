@@ -3,6 +3,7 @@ import argparse
 import pandas as pd
 
 from modules.metrics import compute_mlc
+import json
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -24,6 +25,9 @@ def main():
     gts_data[gts_data == -1] = 0
 
     metrics = compute_mlc(gts_data, res_data, label_set)
+    res_dir = res_path[:-len(res_path.split('/')[-1])]
+    print(res_dir)
+    json.dump(metrics, open(f'{res_dir}/AURROC.json', 'w'))
     pprint(metrics)
 
 
