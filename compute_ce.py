@@ -1,13 +1,20 @@
 from pprint import pprint
-
+import argparse
 import pandas as pd
 
 from modules.metrics import compute_mlc
 
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--res_path', type=str, default='results/iu_xray/ressr_labeled.csv', help='the path to the directory containing the data.')
+    parser.add_argument('--gts_path', type=str, default='results/iu_xray/gts_labeled.csv', help='the path to the directory containing the data.')
+    return parser.parse_args()
 
 def main():
-    res_path = "results/iu_xray/res_labeled.csv"
-    gts_path = "results/iu_xray/gts_labeled.csv"
+    args = parse_args()
+    res_path, gts_path = args.res_path, args.gts_path
+    # res_path = "results/iu_xray/ressr_labeled.csv"
+    # gts_path = "results/iu_xray/gts_labeled.csv"
     res_data, gts_data = pd.read_csv(res_path), pd.read_csv(gts_path)
     res_data, gts_data = res_data.fillna(0), gts_data.fillna(0)
 
@@ -18,6 +25,7 @@ def main():
 
     metrics = compute_mlc(gts_data, res_data, label_set)
     pprint(metrics)
+
 
 
 if __name__ == '__main__':

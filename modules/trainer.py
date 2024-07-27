@@ -133,7 +133,9 @@ class BaseTrainer(object):
             'optimizer': self.optimizer.state_dict(),
             'monitor_best': self.mnt_best
         }
-        filename = os.path.join(self.checkpoint_dir, f'current_checkpoint_{epoch}.pth')
+        if not os.path.exists(self.checkpoint_dir+'/'+'epoch_'+str(epoch)):
+            os.makedirs(self.checkpoint_dir+'/'+'epoch_'+str(epoch))
+        filename = os.path.join(self.checkpoint_dir+'/'+'epoch_'+str(epoch), f'checkpoint.pth')
         torch.save(state, filename)
         print("Saving checkpoint: {} ...".format(filename))
         if save_best:
@@ -213,12 +215,26 @@ class Trainer(BaseTrainer):
                 ground_truths = self.model.tokenizer.decode_batch(reports_ids[:, 1:].cpu().numpy())
                 val_res.extend(reports)
                 val_gts.extend(ground_truths)
+            current_dir = self.checkpoint_dir+'/'+'epoch_'+str(epoch)
+            if not os.path.exists(current_dir):
+                os.makedirs(current_dir)    
             # print("val_gts", val_gts)
             # print("val_res", val_res)
             val_met = self.metric_ftns({i: [gt] for i, gt in enumerate(val_gts)},
                                        {i: [re] for i, re in enumerate(val_res)})
             log.update(**{'val_' + k: v for k, v in val_met.items()})
+            val_res, val_gts = pd.DataFrame(val_res), pd.DataFrame(val_gts)
+            val_res.to_csv(current_dir+'/val_res.csv', index=False, header=["Report Impression"])
+            val_gts.to_csv(current_dir+'/val_gts.csv', index=False, header=["Report Impression"])
+            
+            os.system(f'/root/anaconda3/envs/chexbert/bin/python {current_dir}/../../../CheXbert/src/label.py -d={current_dir}/val_res.csv -o={current_dir} -c={current_dir}/../../../CheXbert/chexbert.pth')
+            os.system(f'mv {current_dir}/labeled_reports.csv {current_dir}/val_res_labeled.csv')
 
+            os.system(f'/root/anaconda3/envs/chexbert/bin/python {current_dir}/../../../CheXbert/src/label.py -d={current_dir}/val_gts.csv -o={current_dir} -c={current_dir}/../../../CheXbert/chexbert.pth')
+            os.system(f'mv {current_dir}/labeled_reports.csv {current_dir}/val_gts_labeled.csv')
+
+            os.system(f'python {current_dir}/../../../compute_ce.py --res_path={current_dir}/val_res_labeled.csv --gts_path={current_dir}/val_gts_labeled.csv > {current_dir}/AURROC.json')
+                
         # self.model.eval()
         # with torch.no_grad():
         #     test_gts, test_res = [], []
