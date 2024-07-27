@@ -6,8 +6,8 @@ from modules.metrics import compute_mlc
 
 
 def main():
-    res_path = "results/mimic_cxr/res_labeled.csv"
-    gts_path = "results/mimic_cxr/gts_labeled.csv"
+    res_path = "results/iu_xray/res_labeled.csv"
+    gts_path = "results/iu_xray/gts_labeled.csv"
     res_data, gts_data = pd.read_csv(res_path), pd.read_csv(gts_path)
     res_data, gts_data = res_data.fillna(0), gts_data.fillna(0)
 
