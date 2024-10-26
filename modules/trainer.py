@@ -228,10 +228,10 @@ class Trainer(BaseTrainer):
             val_res.to_csv(current_dir+'/val_res.csv', index=False, header=["Report Impression"])
             val_gts.to_csv(current_dir+'/val_gts.csv', index=False, header=["Report Impression"])
             
-            os.system(f'/root/anaconda3/envs/chexbert/bin/python {current_dir}/../../../CheXbert/src/label.py -d={current_dir}/val_res.csv -o={current_dir} -c={current_dir}/../../../CheXbert/chexbert.pth')
+            os.system(f'F:/Anaconda/envs/Pytroch_environment/python {current_dir}/../../../CheXbert/src/label.py -d={current_dir}/val_res.csv -o={current_dir} -c={current_dir}/../../../CheXbert/chexbert.pth')
             os.system(f'mv {current_dir}/labeled_reports.csv {current_dir}/val_res_labeled.csv')
 
-            os.system(f'/root/anaconda3/envs/chexbert/bin/python {current_dir}/../../../CheXbert/src/label.py -d={current_dir}/val_gts.csv -o={current_dir} -c={current_dir}/../../../CheXbert/chexbert.pth')
+            os.system(f'F:/Anaconda/envs/Pytroch_environment/python {current_dir}/../../../CheXbert/src/label.py -d={current_dir}/val_gts.csv -o={current_dir} -c={current_dir}/../../../CheXbert/chexbert.pth')
             os.system(f'mv {current_dir}/labeled_reports.csv {current_dir}/val_gts_labeled.csv')
 
             os.system(f'python {current_dir}/../../../compute_ce.py --res_path={current_dir}/val_res_labeled.csv --gts_path={current_dir}/val_gts_labeled.csv')

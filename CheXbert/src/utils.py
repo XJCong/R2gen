@@ -343,8 +343,8 @@ def label_report_list(checkpoint_path, report_list):
     imp = pd.Series(report_list)
     imp = imp.str.strip()
     imp = imp.replace('\n',' ', regex=True)
-    imp = imp.replace('[0-9]\.', '', regex=True)
-    imp = imp.replace('\s+', ' ', regex=True)
+    imp = imp.replace('[0-9]\\.', '', regex=True)
+    imp = imp.replace('\\s+', ' ', regex=True)
     imp = imp.str.strip()
     
     model = bert_labeler()
